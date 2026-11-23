@@ -6241,7 +6241,7 @@ function renderTeam(){
   const legend=GALLUP_DOMAINS.map(d=>`<span class="tm-dom"><i style="background:${d.c}"></i>${escH(d.t)}</span>`).join("");
   const card=(m,i)=>{const str=(m.strengths||[]).map((n,j)=>{const d=gallupDomain(n);
       return `<li title="${escH(n)} · ${escH(d?d.t:"")}"><span class="no">${j+1}</span><i style="background:${d?d.c:"var(--ink-3)"}"></i><b>${escH(n)}</b><em>${escH(d?d.t:"")}</em></li>`;}).join("");
-    const photo=(/^data:/.test(m.photo||"")||/^media\/team\/[\w.-]+\.webp$/.test(m.photo||""))?`<img src="${m.photo}" alt="${escH(m.name)}" width="660" height="810" loading="lazy">`:"";
+    const photo=(/^data:/.test(m.photo||"")||/^media\/team\/[\w.-]+\.webp$/.test(m.photo||""))?`<img src="${m.photo}" alt="${escH(m.name)}" width="660" height="810">`:"";
     return `<article class="tm-card pop" style="--i:${i}"><div class="tm-photo">${photo}</div>
       <div class="tm-body"><h3>${escH(m.name)}</h3><div class="tm-title">${escH(m.title)}</div>
       ${m.tagline?`<p class="tm-tag">${escH(m.tagline)}</p>`:""}
