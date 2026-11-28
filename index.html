@@ -8136,34 +8136,20 @@ injectFocusButtons();   // add the Focus-mode button to every static report pane
    the owner's dev machine is trusted. A `?as=<email>` param simulates a viewer for local testing.
    NOTE: this is a UI-level gate — the report's data is fully client-side, so it is not hard
    access control; it only hides the convenience export from other staff. */
-(async function gateCSV(){
-  const ALLOW=new Set(["m.elsebaie@salla.sa","sanjay@salla.sa","ssssingh533@gmail.com"]);
+(function gateCSV(){
+  // Owner convenience (CSV export buttons): shown on the owner's dev machine only, hidden on the
+  // public site. No hard-coded emails.
   const host=location.hostname;
   const isLocal=/^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/.test(host)||host.endsWith(".localhost");
-  const asParam=new URLSearchParams(location.search).get("as");
-  let ok=false;
-  try{
-    if(asParam!=null){ ok=ALLOW.has(asParam.trim().toLowerCase()); }          // explicit test override
-    else if(isLocal){ ok=true; }                                             // owner's dev machine
-    else{ const r=await fetch("/cdn-cgi/access/get-identity",{credentials:"include"});
-      if(r.ok){const j=await r.json();ok=ALLOW.has(((j&&j.email)||"").trim().toLowerCase());} }
-  }catch(e){ ok=false; }
-  document.body.classList.toggle("csv-ok",ok);
+  document.body.classList.toggle("csv-ok",isLocal);
 })();
 /* ---- Blank-rating indicator gate ---- (same mechanism as the CSV gate; a small set of owners) */
-(async function gateBlankView(){
-  const ALLOW=new Set(["m.elsebaie@salla.sa","sanjay@salla.sa","ssssingh533@gmail.com"]);
+(function gateBlankView(){
+  // Owner convenience (blank-rating indicator): shown on the owner's dev machine only, hidden on
+  // the public site. No hard-coded emails.
   const host=location.hostname;
   const isLocal=/^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/.test(host)||host.endsWith(".localhost");
-  const asParam=new URLSearchParams(location.search).get("as");
-  let ok=false;
-  try{
-    if(asParam!=null){ ok=ALLOW.has(asParam.trim().toLowerCase()); }
-    else if(isLocal){ ok=true; }
-    else{ const r=await fetch("/cdn-cgi/access/get-identity",{credentials:"include"});
-      if(r.ok){const j=await r.json();ok=ALLOW.has(((j&&j.email)||"").trim().toLowerCase());} }
-  }catch(e){ ok=false; }
-  document.body.classList.toggle("sc-blankview",ok);
+  document.body.classList.toggle("sc-blankview",isLocal);
 })();
 /* ---- Quality Unit KPI visibility gate ----
    The whole Quality Unit KPI report (home card + #/reports/qukpi route) is shown only to a small
@@ -8172,22 +8158,9 @@ injectFocusButtons();   // add the Focus-mode button to every static report pane
    the card is CSS-hidden until `.qk-ok`, and switchTab bounces the qukpi route to home once the
    gate has resolved to not-allowed (qkGate===false). Like the other gates this is a UI-level gate,
    not hard access control — the report data is fully client-side. */
-let qkGate;   // undefined = pending (optimistic), true = allowed, false = denied
-(async function gateQukpi(){
-  const ALLOW=new Set(["sanjay@salla.sa"]);
-  const host=location.hostname;
-  const isLocal=/^(localhost|127\.0\.0\.1|\[::1\]|0\.0\.0\.0)$/.test(host)||host.endsWith(".localhost");
-  const asParam=new URLSearchParams(location.search).get("as");
-  let ok=false;
-  try{
-    if(asParam!=null){ ok=ALLOW.has(asParam.trim().toLowerCase()); }          // explicit test override
-    else if(isLocal){ ok=true; }                                             // owner's dev machine
-    else{ const r=await fetch("/cdn-cgi/access/get-identity",{credentials:"include"});
-      if(r.ok){const j=await r.json();ok=ALLOW.has(((j&&j.email)||"").trim().toLowerCase());} }
-  }catch(e){ ok=false; }
-  qkGate=ok;
-  document.body.classList.toggle("qk-ok",ok);
-  if(!ok&&routeOf()===QK)go("home");   // someone already on the restricted route: bounce them out
+let qkGate=true;   // Quality Unit KPI opened to all viewers (gate + email allow-list removed)
+(function gateQukpi(){
+  document.body.classList.add("qk-ok");
 })();
 /* ---- Uppercase shim ----
    The "Ping AR+LT" font ignores CSS `text-transform:uppercase` at paint time (it measures as
